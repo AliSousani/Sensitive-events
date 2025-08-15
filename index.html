@@ -1,469 +1,151 @@
-<!doctype html>
-<html lang="fa" dir="rtl"> 
+<!DOCTYPE html>
+<html lang="fa">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>وقایع حساس</title>
-  <!-- فونت فارسی شیک -->
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#0b1020;--card:#121936;--muted:#94a3b8;--text:#e8eefc;--primary:#7c9aff;
-      --ok:#16a34a;--bad:#ef4444;--chip:#223066;--chip2:#1d243f;
-      --accent:#f59e0b;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>وقایع حساس</title>
+<style>
+    body {
+        font-family: 'Tahoma', sans-serif;
+        background-color: #f0f2f5;
+        margin: 0;
+        padding: 20px;
+        direction: rtl;
+        text-align: center;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0; background:linear-gradient(180deg,#060a16, #0b1020 20%, #0b1020);
-      color:var(--text); font-family:"Vazirmatn",system-ui; line-height:1.7;
+    h1 {
+        color: #333;
     }
-    .wrap{max-width:980px;margin:20px auto;padding:16px}
-    .title{
-      display:flex;gap:10px;align-items:center;justify-content:space-between;margin:10px 2px 18px
+    select, input, textarea, button {
+        width: 90%;
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
     }
-    .title h1{font-size:22px;margin:0;font-weight:800;letter-spacing:.2px}
-    .kebab{opacity:.6}
-    .grid{display:grid;gap:12px}
-    @media(min-width:720px){.grid-2{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:repeat(3,1fr)}}
-    .card{
-      background:radial-gradient(1200px 400px at 120% -15%,rgba(124,154,255,.08), transparent 40%), var(--card);
-      border:1px solid #1f2a52;border-radius:16px;padding:14px 14px 16px; box-shadow:0 8px 30px rgba(2,8,23,.35);
+    button {
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+        border: none;
     }
-    .card h2{font-size:14px;margin:0 0 10px;color:#b8c7ff;font-weight:700}
-    label{font-size:12px;color:var(--muted);display:block;margin:4px 6px}
-    select,input,textarea,button{
-      width:100%;border-radius:12px;border:1px solid #24305b;background:#0e1533;color:var(--text);
-      padding:10px 12px;font-family:inherit;font-size:14px;outline:none
+    button:hover {
+        background-color: #45a049;
     }
-    select:focus,input:focus,textarea:focus{border-color:#3b82f6; box-shadow:0 0 0 2px rgba(59,130,246,.25)}
-    .row{display:flex;gap:8px;align-items:center}
-    .btn{cursor:pointer;background:linear-gradient(180deg,#3b82f6,#2563eb);border:none}
-    .btn:disabled{opacity:.6;cursor:not-allowed}
-    .ghost{background:#0f1637;border:1px dashed #2c3665}
-    .chip{display:inline-flex;align-items:center;gap:8px;background:var(--chip);border:1px solid #2d3b73;
-      color:#cbd5ff;padding:6px 10px;border-radius:999px;font-size:12px}
-    .small{font-size:12px;color:var(--muted)}
-    .list{display:grid;gap:10px;margin-top:10px}
-    .item{border:1px solid #233064;background:linear-gradient(180deg,#121b40,#0d1433);border-radius:12px;padding:12px}
-    .tag{font-size:11px;color:#9db0ff;background:#1b2652;border:1px solid #28356a;border-radius:8px;padding:3px 8px;margin-left:6px}
-    .ok{color:#d1fae5;background:#062716;border:1px solid #0b3a1f}
-    .bad{color:#ffe1e1;background:#3a0b0b;border:1px solid #5c1414}
-    .row-spread{display:flex;justify-content:space-between;align-items:center;gap:8px}
-    .danger{background:linear-gradient(180deg,#ef4444,#b91c1c)}
-    .muted{opacity:.8}
-    .uidBox{display:flex; gap:8px}
-    .divider{height:1px;background:#1f2a52;margin:8px 0}
-    .pill{background:#1c244a;border:1px solid #2b3a72;color:#cfe1ff;border-radius:999px;padding:6px 10px;font-size:12px}
-    .accent{color:#fde68a}
-  </style>
+    .record {
+        background-color: white;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 8px;
+        text-align: right;
+    }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="title">
-      <h1>📌 وقایع حساس</h1>
-      <div class="kebab small">نسخه ۱.۰</div>
-    </div>
 
-    <!-- نمایش و فیلتر نتایج (بالا) -->
-    <div class="card">
-      <h2>نمایش گزارش‌ها</h2>
-      <div class="grid grid-3">
-        <div>
-          <label>کارمند</label>
-          <select id="fEmployee">
-            <option value="">همه</option>
-          </select>
-        </div>
-        <div>
-          <label>سال</label>
-          <select id="fYear">
-            <option value="">همه</option>
-          </select>
-        </div>
-        <div>
-          <label>فصل</label>
-          <select id="fSeason">
-            <option value="">همه</option>
-            <option>بهار</option><option>تابستان</option><option>پاییز</option><option>زمستان</option>
-          </select>
-        </div>
-      </div>
-      <div class="grid grid-3" style="margin-top:10px">
-        <div>
-          <label>نوع</label>
-          <select id="fSent">
-            <option value="">همه</option>
-            <option value="pos">مثبت</option>
-            <option value="neg">منفی</option>
-          </select>
-        </div>
-        <div class="grid" style="grid-template-columns:1fr auto">
-          <div>
-            <label>جستجو در شرح</label>
-            <input id="fKeyword" placeholder="کلیدواژه…" />
-          </div>
-          <div>
-            <label>&nbsp;</label>
-            <button id="btnSearch" class="btn">🔎 جستجو</button>
-          </div>
-        </div>
-        <div class="grid" style="grid-template-columns:1fr 1fr">
-          <div>
-            <label>&nbsp;</label>
-            <button id="btnRefresh" class="ghost">↻ تازه‌سازی</button>
-          </div>
-          <div>
-            <label>&nbsp;</label>
-            <button id="btnClearFilters" class="ghost">🧹 پاک‌سازی فیلترها</button>
-          </div>
-        </div>
-      </div>
+<h1>وقایع حساس</h1>
 
-      <div class="divider"></div>
-      <div class="row" style="gap:8px;flex-wrap:wrap">
-        <span class="chip">تعداد نتایج: <b id="count">۰</b></span>
-        <span class="chip">مرتب‌سازی: جدیدترین ← قدیمی</span>
-      </div>
-      <div id="results" class="list"></div>
-    </div>
+<select id="employeeSelect">
+</select>
 
-    <!-- فرم ورود اطلاعات -->
-    <div class="grid grid-2" style="margin-top:14px">
-      <div class="card">
-        <h2>افزودن/ثبت رویداد</h2>
+<select id="yearSelect">
+    <option>1404</option>
+    <option>1403</option>
+</select>
 
-        <div class="grid grid-3">
-          <div>
-            <label>کارمند</label>
-            <select id="employee"></select>
-          </div>
-          <div>
-            <label>سال</label>
-            <select id="year"></select>
-          </div>
-          <div>
-            <label>فصل</label>
-            <select id="season">
-              <option>بهار</option><option>تابستان</option><option>پاییز</option><option>زمستان</option>
-            </select>
-          </div>
-        </div>
+<select id="seasonSelect">
+    <option>بهار</option>
+    <option>تابستان</option>
+    <option>پاییز</option>
+    <option>زمستان</option>
+</select>
 
-        <div class="grid grid-3" style="margin-top:10px">
-          <div>
-            <label>نوع</label>
-            <select id="sentiment">
-              <option value="pos">مثبت</option>
-              <option value="neg">منفی</option>
-            </select>
-          </div>
-          <div class="grid" style="grid-template-columns:1fr auto">
-            <div>
-              <label>افزودن کارمند جدید</label>
-              <input id="newEmp" placeholder="نام کارمند…" />
-            </div>
-            <div>
-              <label>&nbsp;</label>
-              <button id="btnAddEmp" class="ghost">➕ افزودن</button>
-            </div>
-          </div>
-          <div>
-            <label>&nbsp;</label>
-            <span class="pill">برای همگام‌سازی کارمندان بین دستگاه‌ها ذخیره می‌شوند.</span>
-          </div>
-        </div>
+<select id="statusSelect">
+    <option>مثبت</option>
+    <option>منفی</option>
+</select>
 
-        <div style="margin-top:10px">
-          <label>شرح رویداد</label>
-          <textarea id="desc" rows="4" placeholder="چه اتفاقی افتاد…"></textarea>
-        </div>
+<textarea id="descriptionInput" placeholder="شرح اتفاق"></textarea>
 
-        <div class="row" style="gap:8px;margin-top:12px">
-          <button id="btnSave" class="btn">💾 ذخیره</button>
-          <button id="btnClearForm" class="ghost">🧽 پاک کردن فرم</button>
-        </div>
+<button onclick="saveRecord()">ذخیره</button>
 
-        <div class="small muted" id="msg" style="margin-top:8px"></div>
-      </div>
+<h2>جستجو</h2>
+<select id="filterEmployee">
+</select>
+<button onclick="filterRecords()">نمایش</button>
 
-      <!-- تنظیم شناسه مشترک -->
-      <div class="card">
-        <h2>شناسهٔ مشترک (UID)</h2>
-        <div class="small" style="margin-bottom:8px">
-          همه‌ی اطلاعات شما با <span class="accent">UID</span> ذخیره و بین دستگاه‌ها همگام می‌شود.
-          اگر قبلاً در فلش‌کارت UID تنظیم کرده‌اید می‌توانید همان را اینجا نیز قرار دهید تا اطلاعات در هر دو برنامه مشترک باشد.
-        </div>
-        <div class="uidBox">
-          <input id="uid" placeholder="مثلاً: u_r1l5sctiyecme9sclf1" />
-          <button id="btnSetUID" class="ghost">تنظیم</button>
-          <button id="btnGenUID" class="ghost">ساخت UID</button>
-        </div>
-        <div class="small muted" id="uidInfo" style="margin-top:8px"></div>
+<div id="records"></div>
 
-        <div class="divider"></div>
-        <h2 style="margin-top:2px">راهنما</h2>
-        <ul class="small" style="margin:6px 16px 0; padding:0 16px">
-          <li>اول <b>UID</b> را تنظیم کنید (می‌توانید از فلش‌کارت کپی کنید).</li>
-          <li>لیست کارمندان را یک بار اضافه کنید؛ بعد از آن از منوی کشویی انتخاب کنید.</li>
-          <li>برای گزارش‌گیری از بخش «نمایش گزارش‌ها» در بالا فیلترها را تنظیم کنید.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+<script>
+    const employees = [
+        "آزاده احمدی",
+        "عادل سهراب زاده",
+        "علی قاسمی",
+        "سمانه گهرخواه",
+        "سمیه حیدری",
+        "سید صلاح حسینی",
+        "سید محمدهادی مقیمی",
+        "سپیده تفرشی",
+        "فاطمه بخشنده",
+        "محمدرضا شیرازی",
+        "محمدولی پوراوند",
+        "محمدحسین علیزاده",
+        "مهدیه نیری",
+        "مهناز رحمانی نژاد"
+    ];
 
-  <!-- Firebase (compat for simplicity) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    const employeeSelect = document.getElementById("employeeSelect");
+    const filterEmployee = document.getElementById("filterEmployee");
 
-  <script>
-    // -------------------- تنظیمات Firebase --------------------
-    // TODO: اینجا کانفیگ پروژه خودت را بگذار (از Settings → General → Your apps → Web app)
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "SENDER_ID",
-      appId: "APP_ID"
-    };
-    // -----------------------------------------------------------
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    employees.forEach(emp => {
+        let option1 = document.createElement("option");
+        option1.text = emp;
+        employeeSelect.add(option1);
 
-    // عناصر
-    const el = id => document.getElementById(id);
-
-    const uidInput = el('uid');
-    const uidInfo  = el('uidInfo');
-    const employee = el('employee');
-    const year     = el('year');
-    const season   = el('season');
-    const sentiment= el('sentiment');
-    const desc     = el('desc');
-    const msg      = el('msg');
-
-    const fEmployee= el('fEmployee');
-    const fYear    = el('fYear');
-    const fSeason  = el('fSeason');
-    const fSent    = el('fSent');
-    const fKeyword = el('fKeyword');
-    const results  = el('results');
-    const count    = el('count');
-
-    // پر کردن سال‌ها (۱۴۰۰ تا ۱۴۱۵)
-    const years = Array.from({length: 16}, (_,i) => 1400+i);
-    years.forEach(y=>{
-      const o1 = new Option(String(y), y); year.add(o1.cloneNode(true));
-      const o2 = new Option(String(y), y); fYear.add(o2);
+        let option2 = document.createElement("option");
+        option2.text = emp;
+        filterEmployee.add(option2);
     });
-    // مقدار پیش‌فرض سال جاری شمسی
-    try{
-      const now = new Date();
-      // تقریب: سال شمسی ~ میلادی-621 یا -622، برای سادگی:
-      const gy = now.getFullYear(), gm = now.getMonth()+1;
-      let jy = gy - 621; if(gm<3) jy--; // تخمینی کافی برای UI
-      year.value = years.includes(jy)? jy: years.at(-1);
-    }catch{ year.value = years[0]; }
 
-    // UID
-    const UID_KEY = 'sensitive_uid';
-    function setUID(u){
-      localStorage.setItem(UID_KEY, u);
-      uidInput.value = u;
-      uidInfo.textContent = u ? `UID فعلی: ${u}` : 'هنوز تنظیم نشده است.';
-    }
-    function getUID(){ return uidInput.value.trim(); }
+    function saveRecord() {
+        const employee = employeeSelect.value;
+        const year = document.getElementById("yearSelect").value;
+        const season = document.getElementById("seasonSelect").value;
+        const status = document.getElementById("statusSelect").value;
+        const description = document.getElementById("descriptionInput").value;
 
-    // بازیابی UID از localStorage یا از فلش‌کارت (اگر همان دامنه و ذخیره‌شده باشد)
-    (function initUID(){
-      const fromLocal = localStorage.getItem(UID_KEY);
-      if(fromLocal){ setUID(fromLocal); return; }
-      // تلاش برای خواندن از فلش‌کارت (اگر همان کلید را داشتید)
-      const flashKey = 'flashcards_uid';
-      const fromFlash = localStorage.getItem(flashKey);
-      if(fromFlash){ setUID(fromFlash); return; }
-      uidInfo.textContent = 'برای شروع، یک UID تنظیم کنید یا بسازید.';
-    })();
+        if (!description.trim()) {
+            alert("لطفا شرح اتفاق را وارد کنید");
+            return;
+        }
 
-    el('btnSetUID').onclick = ()=> setUID(uidInput.value.trim());
-    el('btnGenUID').onclick = ()=>{
-      const u = 'u_'+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2,7);
-      setUID(u);
-    };
-
-    // ---------- مدیریت کارمندان (sync در کلایود) ----------
-    const empSelects = [employee, fEmployee];
-    function fillEmployees(options){
-      empSelects.forEach(sel=>{
-        const val = sel.value;
-        sel.innerHTML = '';
-        if(sel === fEmployee) sel.add(new Option('همه',''));
-        options.forEach(n=> sel.add(new Option(n, n)));
-        if(val) sel.value = val;
-      });
-    }
-    async function loadEmployees(){
-      const uid = getUID(); if(!uid) return;
-      const snap = await db.collection('employees')
-        .where('uid','==',uid)
-        .orderBy('name')
-        .get();
-      const names = snap.docs.map(d=>d.data().name);
-      if(names.length===0){
-        // اگر چیزی نبود، حداقل یک گزینهٔ خالی
-        fillEmployees(['']);
-      }else{
-        fillEmployees(names);
-      }
-    }
-    el('btnAddEmp').onclick = async ()=>{
-      const uid = getUID();
-      const name = el('newEmp').value.trim();
-      if(!uid) return alert('اول UID را تنظیم کنید.');
-      if(!name) return;
-      // عدم تکرار
-      const exists = await db.collection('employees')
-        .where('uid','==',uid).where('name','==',name).limit(1).get();
-      if(!exists.empty){
-        el('newEmp').value=''; await loadEmployees(); employee.value=name; fEmployee.value=name;
-        return;
-      }
-      await db.collection('employees').add({uid, name, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
-      el('newEmp').value='';
-      await loadEmployees();
-      employee.value = name; fEmployee.value = name;
-    };
-
-    // ---------- ذخیره رویداد ----------
-    el('btnSave').onclick = async ()=>{
-      const uid = getUID();
-      if(!uid) return alert('UID را تنظیم کنید.');
-      const data = {
-        uid,
-        employee: employee.value,
-        year: Number(year.value),
-        season: season.value,
-        sentiment: sentiment.value, // pos/neg
-        desc: (desc.value||'').trim(),
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      if(!data.employee){ msg.textContent='لطفاً کارمند را انتخاب یا اضافه کنید.'; return; }
-      if(!data.desc){ msg.textContent='شرح رویداد را بنویسید.'; return; }
-
-      el('btnSave').disabled = true;
-      try{
-        await db.collection('events').add(data);
-        msg.textContent='✅ ذخیره شد.';
-        desc.value='';
-        // رفرش لیست
-        await search();
-      }catch(e){
-        console.error(e);
-        msg.textContent='❌ خطا در ذخیره.';
-      }finally{
-        el('btnSave').disabled = false;
-      }
-    };
-    el('btnClearForm').onclick = ()=>{
-      desc.value=''; sentiment.value='pos';
-    };
-
-    // ---------- جست‌وجو و نمایش ----------
-    function renderItem(doc){
-      const d = doc.data();
-      const time = d.createdAt?.toDate?.() || null;
-      const dateStr = time ? time.toLocaleString('fa-IR') : '—';
-
-      const wrap = document.createElement('div');
-      wrap.className='item';
-
-      const tags = `
-        <span class="tag">${d.employee||'—'}</span>
-        <span class="tag">${d.year||'—'}</span>
-        <span class="tag">${d.season||'—'}</span>
-        <span class="tag ${d.sentiment==='pos'?'ok':'bad'}">${d.sentiment==='pos'?'مثبت':'منفی'}</span>
-      `;
-      wrap.innerHTML = `
-        <div class="row-spread">
-          <div>${tags}</div>
-          <div class="small muted">${dateStr}</div>
-        </div>
-        <div style="margin-top:8px">${(d.desc || '').replace(/\n/g,'<br>')}</div>
-        <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap">
-          <button class="ghost" data-act="edit">✏️ ویرایش</button>
-          <button class="danger" data-act="del">🗑️ حذف</button>
-          <span class="chip">شناسه سند: <span class="accent">${doc.id}</span></span>
-        </div>
-      `;
-      // رویدادهای دکمه‌ها
-      wrap.querySelector('[data-act="del"]').onclick = async ()=>{
-        if(!confirm('حذف شود؟')) return;
-        await db.collection('events').doc(doc.id).delete();
-        await search();
-      };
-      wrap.querySelector('[data-act="edit"]').onclick = ()=>{
-        // مقداردهی فرم
-        employee.value = d.employee||'';
-        year.value = d.year||'';
-        season.value = d.season||'بهار';
-        sentiment.value = d.sentiment||'pos';
-        desc.value = d.desc||'';
-        msg.textContent = '🔄 داده در فرم قرار گرفت. می‌توانید اصلاح و ذخیره کنید (ذخیره جدید ایجاد می‌کند).';
-        window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
-      };
-      return wrap;
+        let records = JSON.parse(localStorage.getItem("events")) || [];
+        records.push({ employee, year, season, status, description });
+        localStorage.setItem("events", JSON.stringify(records));
+        document.getElementById("descriptionInput").value = "";
+        alert("ذخیره شد");
     }
 
-    async function search(){
-      const uid = getUID(); if(!uid) return;
-      // ساخت query پایه
-      let q = db.collection('events').where('uid','==',uid).orderBy('createdAt','desc').limit(200);
-
-      // فیلترهای برابر
-      const emp = fEmployee.value;
-      const yr  = fYear.value;
-      const ssn = fSeason.value;
-      const st  = fSent.value;
-
-      // Firestore برای ترکیب where به ایندکس نیاز داره؛
-      // برای سادگی، فقط whereهای ضروری رو اضافه و بقیه را کلاینتی فیلتر می‌کنیم
-      if(emp) q = q.where('employee','==',emp);
-      if(yr)  q = q.where('year','==',Number(yr));
-      if(ssn) q = q.where('season','==',ssn);
-      if(st)  q = q.where('sentiment','==',st);
-
-      const snap = await q.get();
-      let docs = snap.docs;
-
-      // فیلتر کلمه کلیدی روی کلاینت
-      const kw = fKeyword.value.trim();
-      if(kw){
-        const p = kw.toLowerCase();
-        docs = docs.filter(d => (d.data().desc||'').toLowerCase().includes(p));
-      }
-
-      results.innerHTML='';
-      docs.forEach(d => results.appendChild(renderItem(d)));
-      count.textContent = String(docs.length);
+    function filterRecords() {
+        const selectedEmployee = filterEmployee.value;
+        let records = JSON.parse(localStorage.getItem("events")) || [];
+        let filtered = records.filter(r => r.employee === selectedEmployee);
+        displayRecords(filtered);
     }
 
-    el('btnSearch').onclick = search;
-    el('btnRefresh').onclick = search;
-    el('btnClearFilters').onclick = ()=>{
-      fEmployee.value='';
-      fYear.value='';
-      fSeason.value='';
-      fSent.value='';
-      fKeyword.value='';
-      search();
-    };
+    function displayRecords(records) {
+        const recordsDiv = document.getElementById("records");
+        recordsDiv.innerHTML = "";
+        records.forEach(r => {
+            const div = document.createElement("div");
+            div.className = "record";
+            div.innerHTML = `<strong>${r.employee}</strong> | ${r.year} - ${r.season} - ${r.status} <br> ${r.description}`;
+            recordsDiv.appendChild(div);
+        });
+    }
+</script>
 
-    // بارگذاری اولیه
-    (async function init(){
-      await loadEmployees();
-      if(employee.options.length===0) employee.add(new Option('',''));
-      await search();
-    })();
-  </script>
 </body>
 </html>
