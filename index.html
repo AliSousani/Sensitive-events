@@ -54,7 +54,7 @@
       </div>
     </header>
 
-    <!-- فیلتر و گزارش (بالا) -->
+    <!-- فیلتر و گزارش -->
     <section class="panel">
       <div class="row" style="justify-content:space-between">
         <div class="row">
@@ -217,7 +217,7 @@
       ySel.value = 1404;
     }
 
-    // 5) ثبت رویداد
+    // 5) ذخیره رویداد
     const msg = document.getElementById('msg');
     function info(t){ msg.textContent=t; setTimeout(()=>msg.textContent='—',1600); }
 
@@ -244,12 +244,12 @@
       document.getElementById('kind').value='مثبت';
     };
 
-    // 6) گزارش زنده با onSnapshot
+    // 6) گزارش زنده (onSnapshot) — بدون where تا ایندکس نخواهد؛ فیلترها کلاینتی
     const results   = document.getElementById('results');
     const countEl   = document.getElementById('count');
     const statusHint= document.getElementById('statusHint');
+    let unsubscribe = null;
 
-    let unsubscribe = null; // برای قطع و وصل لیسنر
     function rowHtml(id, d){
       const date = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString('fa-IR') : '—';
       const tagKind = d.kind==='منفی' ? 'tag bad">منفی' : 'tag ok">مثبت';
@@ -290,20 +290,21 @@
     }
 
     function attachListener(){
-      // قطع لیسنر قبلی
       if (unsubscribe){ unsubscribe(); unsubscribe=null; }
-      if (!UID){ results.innerHTML = '<div class="hint">ابتدا UID را تنظیم کنید.</div>'; return; }
+      if (!UID){
+        results.innerHTML = '<div class="hint">ابتدا UID را تنظیم کنید.</div>';
+        countEl.textContent = '0';
+        statusHint.textContent = '—';
+        return;
+      }
 
       statusHint.textContent = 'در حال اتصال…';
-      let q = db.collection('users').doc(UID).collection('events').orderBy('createdAt','desc');
 
-      // whereهای سبک (employee/year) را روی سرور می‌زنیم؛ بقیه فیلترها کلاینتی
-      const fEmp = document.getElementById('fEmployee').value;
-      const fYear= document.getElementById('fYear').value;
-      if(fEmp)  q = q.where('employee','==',fEmp);
-      if(fYear) q = q.where('year','==',Number(fYear));
+      const q = db.collection('users').doc(UID).collection('events')
+                  .orderBy('createdAt','desc')   // فقط مرتب‌سازی؛ هیچ where روی سرور
+                  .limit(500);
 
-      unsubscribe = q.limit(500).onSnapshot(snap=>{
+      unsubscribe = q.onSnapshot(snap=>{
         const all = snap.docs.map(d=>({id:d.id, ...d.data()}));
         const filtered = applyClientFilters(all);
         results.innerHTML = filtered.map(d=>rowHtml(d.id,d)).join('') || '<div class="hint">موردی یافت نشد.</div>';
@@ -311,11 +312,11 @@
         statusHint.textContent = 'متصل ✅';
       }, err=>{
         console.error(err);
-        statusHint.textContent = 'خطا در اتصال';
+        statusHint.textContent = 'خطا در اتصال: ' + (err?.message || '');
       });
     }
 
-    // رویداد فیلترها → لیسنر دوباره وصل شود
+    // دکمه‌ها: وصل/بازوصل لیسنر
     document.getElementById('btnSearch').onclick   = attachListener;
     document.getElementById('btnRefresh').onclick  = attachListener;
     document.getElementById('btnClearFilters').onclick = ()=>{
@@ -327,12 +328,12 @@
       attachListener();
     };
 
-    // ویرایش و حذف
+    // حذف و ویرایش
     window.__del = async function(id){
       if(!UID) return alert('UID را تنظیم کنید.');
       if(!confirm('حذف شود؟')) return;
       await db.collection('users').doc(UID).collection('events').doc(id).delete();
-      // نیازی به رفرش نیست؛ onSnapshot خودش به‌روز می‌کند
+      // onSnapshot خودکار به‌روزرسانی می‌کند
     }
     window.__edit = async function(id){
       if(!UID) return alert('UID را تنظیم کنید.');
