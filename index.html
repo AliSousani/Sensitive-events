@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>وقایع حساس (سینک با Firestore)</title>
+<title>وقایع حساس — Realtime</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -172,7 +172,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
   <script>
-    // ── 1) Firebase Config (پروژه‌ای که با فلش‌کارت ساختیم)
+    // 1) تنظیمات Firebase (پروژه فلش‌کارتت)
     const firebaseConfig = {
       apiKey: "AIzaSyCI1jW-3NwZtJEXfyx1Pp0lTg9EyM4xwLQ",
       authDomain: "flashcards-7ea58.firebaseapp.com",
@@ -185,63 +185,48 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ── 2) UID مشترک (همان که در فلش‌کارت استفاده می‌کنی)
+    // 2) UID مشترک
     const uidInput = document.getElementById('uidInput');
     const setUidBtn = document.getElementById('setUidBtn');
     const genUidBtn = document.getElementById('genUidBtn');
     let UID = localStorage.getItem('events_uid') || '';
     if (UID) uidInput.value = UID;
-    setUidBtn.onclick = ()=>{ UID = uidInput.value.trim(); if(!UID) return alert('UID را وارد کنید'); localStorage.setItem('events_uid', UID); info('UID تنظیم شد.'); search(); };
+    setUidBtn.onclick = ()=>{ UID = uidInput.value.trim(); if(!UID) return alert('UID را وارد کنید'); localStorage.setItem('events_uid', UID); info('UID تنظیم شد.'); attachListener(); };
     genUidBtn.onclick = ()=>{ const u='u_'+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2,7); uidInput.value=u; setUidBtn.click(); };
 
-    // ── 3) لیست کارمندان (هاردکد، مرتب الفبایی)
+    // 3) کارمندان هاردکد (مرتب الفبایی)
     const EMPLOYEES = [
-      "آزاده احمدی",
-      "عادل سهراب زاده",
-      "علی قاسمی",
-      "سمانه گهرخواه",
-      "سمیه حیدری",
-      "سید صلاح حسینی",
-      "سید محمدهادی مقیمی",
-      "سپیده تفرشی",
-      "فاطمه بخشنده",
-      "محمدرضا شیرازی",
-      "محمدحسین علیزاده",
-      "محمدولی پوراوند",
-      "مهناز رحمانی نژاد",
-      "مهدیه نیری"
+      "آزاده احمدی","عادل سهراب زاده","علی قاسمی","سمانه گهرخواه","سمیه حیدری",
+      "سید صلاح حسینی","سید محمدهادی مقیمی","سپیده تفرشی","فاطمه بخشنده",
+      "محمدرضا شیرازی","محمدحسین علیزاده","محمدولی پوراوند","مهناز رحمانی نژاد","مهدیه نیری"
     ];
     function fillEmployees(){
-      const els = [document.getElementById('employee'), document.getElementById('fEmployee')];
-      els.forEach((sel, i)=>{
-        sel.innerHTML = i===1 ? '<option value=\"\">همه</option>' : '';
-        EMPLOYEES.forEach(n=> sel.add(new Option(n, n)));
-      });
+      const sel1 = document.getElementById('employee');
+      const sel2 = document.getElementById('fEmployee');
+      sel1.innerHTML = ''; sel2.innerHTML = '<option value="">همه</option>';
+      EMPLOYEES.forEach(n=>{ sel1.add(new Option(n,n)); sel2.add(new Option(n,n)); });
     }
 
-    // ── 4) سال‌ها
+    // 4) سال‌ها
     function fillYears(){
       const ySel = document.getElementById('year');
       const fySel= document.getElementById('fYear');
-      const years = [];
-      for(let y=1395;y<=1410;y++) years.push(y);
-      ySel.innerHTML=''; fySel.innerHTML='<option value=\"\">همه</option>';
-      years.forEach(y=>{
-        ySel.add(new Option(String(y), y));
-        fySel.add(new Option(String(y), y));
-      });
+      const years = []; for(let y=1395;y<=1410;y++) years.push(y);
+      ySel.innerHTML=''; fySel.innerHTML='<option value="">همه</option>';
+      years.forEach(y=>{ ySel.add(new Option(String(y),y)); fySel.add(new Option(String(y),y)); });
       ySel.value = 1404;
     }
 
-    // ── 5) ذخیره رویداد
+    // 5) ثبت رویداد
     const msg = document.getElementById('msg');
     function info(t){ msg.textContent=t; setTimeout(()=>msg.textContent='—',1600); }
+
     document.getElementById('btnSave').onclick = async ()=>{
       if(!UID) return alert('اول UID را تنظیم کنید.');
       const employee = document.getElementById('employee').value;
       const year     = Number(document.getElementById('year').value);
       const season   = document.getElementById('season').value;
-      const kind     = document.getElementById('kind').value; // مثبت/منفی
+      const kind     = document.getElementById('kind').value;
       const desc     = (document.getElementById('desc').value||'').trim();
       if(!employee) return info('کارمند را انتخاب کنید.');
       if(!desc) return info('شرح را بنویسید.');
@@ -252,7 +237,6 @@
         });
         document.getElementById('desc').value='';
         info('✅ ذخیره شد.');
-        await search(); // تازه‌سازی گزارش
       }catch(e){ console.error(e); info('❌ خطا در ذخیره.'); }
     };
     document.getElementById('btnClearForm').onclick = ()=>{
@@ -260,22 +244,12 @@
       document.getElementById('kind').value='مثبت';
     };
 
-    // ── 6) جست‌وجو/گزارش با همه فیلترها
-    const countEl = document.getElementById('count');
-    const results = document.getElementById('results');
-    const statusHint = document.getElementById('statusHint');
+    // 6) گزارش زنده با onSnapshot
+    const results   = document.getElementById('results');
+    const countEl   = document.getElementById('count');
+    const statusHint= document.getElementById('statusHint');
 
-    document.getElementById('btnSearch').onclick = search;
-    document.getElementById('btnRefresh').onclick = search;
-    document.getElementById('btnClearFilters').onclick = ()=>{
-      document.getElementById('fEmployee').value='';
-      document.getElementById('fYear').value='';
-      document.getElementById('fSeason').value='';
-      document.getElementById('fKind').value='';
-      document.getElementById('fKeyword').value='';
-      search();
-    };
-
+    let unsubscribe = null; // برای قطع و وصل لیسنر
     function rowHtml(id, d){
       const date = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString('fa-IR') : '—';
       const tagKind = d.kind==='منفی' ? 'tag bad">منفی' : 'tag ok">مثبت';
@@ -300,38 +274,65 @@
         </div>`;
     }
 
-    async function search(){
-      if(!UID){ statusHint.textContent='UID را تنظیم کنید.'; return; }
-      statusHint.textContent='در حال بارگذاری…';
-
+    function applyClientFilters(list){
       const fEmp = document.getElementById('fEmployee').value;
       const fYear= document.getElementById('fYear').value;
       const fSea = document.getElementById('fSeason').value;
       const fKind= document.getElementById('fKind').value;
       const kw   = document.getElementById('fKeyword').value.trim().toLowerCase();
 
+      return list
+        .filter(x => !fEmp  || x.employee===fEmp)
+        .filter(x => !fYear || x.year===Number(fYear))
+        .filter(x => !fSea  || x.season===fSea)
+        .filter(x => !fKind || x.kind===fKind)
+        .filter(x => !kw    || (x.desc||'').toLowerCase().includes(kw));
+    }
+
+    function attachListener(){
+      // قطع لیسنر قبلی
+      if (unsubscribe){ unsubscribe(); unsubscribe=null; }
+      if (!UID){ results.innerHTML = '<div class="hint">ابتدا UID را تنظیم کنید.</div>'; return; }
+
+      statusHint.textContent = 'در حال اتصال…';
       let q = db.collection('users').doc(UID).collection('events').orderBy('createdAt','desc');
+
+      // whereهای سبک (employee/year) را روی سرور می‌زنیم؛ بقیه فیلترها کلاینتی
+      const fEmp = document.getElementById('fEmployee').value;
+      const fYear= document.getElementById('fYear').value;
       if(fEmp)  q = q.where('employee','==',fEmp);
       if(fYear) q = q.where('year','==',Number(fYear));
 
-      const snap = await q.limit(500).get();
-      let docs = snap.docs.map(d=>({id:d.id, ...d.data()}));
-
-      if(fSea)  docs = docs.filter(x=>x.season===fSea);
-      if(fKind) docs = docs.filter(x=>x.kind===fKind);
-      if(kw)    docs = docs.filter(x=>(x.desc||'').toLowerCase().includes(kw));
-
-      results.innerHTML = docs.map(d=>rowHtml(d.id, d)).join('') || '<div class="hint">موردی یافت نشد.</div>';
-      countEl.textContent = String(docs.length);
-      statusHint.textContent='آماده.';
+      unsubscribe = q.limit(500).onSnapshot(snap=>{
+        const all = snap.docs.map(d=>({id:d.id, ...d.data()}));
+        const filtered = applyClientFilters(all);
+        results.innerHTML = filtered.map(d=>rowHtml(d.id,d)).join('') || '<div class="hint">موردی یافت نشد.</div>';
+        countEl.textContent = String(filtered.length);
+        statusHint.textContent = 'متصل ✅';
+      }, err=>{
+        console.error(err);
+        statusHint.textContent = 'خطا در اتصال';
+      });
     }
 
-    // حذف و ویرایش (نرم)
+    // رویداد فیلترها → لیسنر دوباره وصل شود
+    document.getElementById('btnSearch').onclick   = attachListener;
+    document.getElementById('btnRefresh').onclick  = attachListener;
+    document.getElementById('btnClearFilters').onclick = ()=>{
+      document.getElementById('fEmployee').value='';
+      document.getElementById('fYear').value='';
+      document.getElementById('fSeason').value='';
+      document.getElementById('fKind').value='';
+      document.getElementById('fKeyword').value='';
+      attachListener();
+    };
+
+    // ویرایش و حذف
     window.__del = async function(id){
       if(!UID) return alert('UID را تنظیم کنید.');
       if(!confirm('حذف شود؟')) return;
       await db.collection('users').doc(UID).collection('events').doc(id).delete();
-      search();
+      // نیازی به رفرش نیست؛ onSnapshot خودش به‌روز می‌کند
     }
     window.__edit = async function(id){
       if(!UID) return alert('UID را تنظیم کنید.');
@@ -347,8 +348,8 @@
       window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
     }
 
-    // init
-    function boot(){ fillEmployees(); fillYears(); search(); }
+    // شروع
+    function boot(){ fillEmployees(); fillYears(); attachListener(); }
     boot();
   </script>
 </body>
